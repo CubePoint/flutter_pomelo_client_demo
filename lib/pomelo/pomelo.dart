@@ -2,9 +2,11 @@ import './utils.dart';
 import './cpackage.dart';
 import './default_msg_processor.dart';
 
-import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 const JS_WS_CLIENT_TYPE = 'js-websocket';
 const JS_WS_CLIENT_VERSION = '0.0.1';
@@ -15,7 +17,7 @@ const RES_FAIL = 500;
 const RES_OLD_CLIENT = 501;
 
 class Pomelo extends EventEmitter {
-  WebSocket wsSocket;
+  WebSocketChannel wsSocket;
 
   Completer initCpl;
 
@@ -151,6 +153,7 @@ class Pomelo extends EventEmitter {
     }
 
     void onmessage(data) {
+      data = List<int>.from(data);
       this.processPackage(Cpackage.decodeAll(data));
       if (heartbeatReviceTimeoutMs != null &&
           heartbeatReviceTimeoutMs.inMilliseconds > 0) {
@@ -172,7 +175,6 @@ class Pomelo extends EventEmitter {
       // 是否为初始化失败
       if (initCpl != null && (!initCpl.isCompleted)) {
         initCpl.complete(false);
-        initCpl = null;
       } else {
         if (this.tryReconnect &&
             this.reconnectAttempts < this.maxReconnectAttempts) {
@@ -187,10 +189,10 @@ class Pomelo extends EventEmitter {
     }
 
     try {
-      this.wsSocket = await WebSocket.connect(this.url);
-      this.wsSocket.listen(onmessage,
+      this.wsSocket = WebSocketChannel.connect(Uri.parse(this.url));
+      this.wsSocket.stream.listen(onmessage,
           onError: onerror, onDone: onclose, cancelOnError: false);
-      onopen();
+      onopen();  
     } catch (e) {
       onclose();
       printDebugLog(e);
@@ -199,7 +201,7 @@ class Pomelo extends EventEmitter {
 
   disconnect() async {
     if (this.wsSocket != null) {
-      await this.wsSocket.close();
+      await this.wsSocket.sink.close();
       this.wsSocket = null;
     }
 
@@ -237,7 +239,7 @@ class Pomelo extends EventEmitter {
   }
 
   send(List<int> buffer) {
-    this.wsSocket.add(buffer);
+    this.wsSocket.sink.add(Uint8List.fromList(buffer));
   }
 
   // 处理各package type
@@ -271,7 +273,6 @@ class Pomelo extends EventEmitter {
         Cpackage.byEncode(CpackageType.HANDSHAKE_ACK, null).cpackageBuffer);
     if (initCpl != null && (!initCpl.isCompleted)) {
       initCpl.complete(true);
-      initCpl = null;
     }
   }
 

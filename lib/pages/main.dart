@@ -83,14 +83,16 @@ class _MainPageState extends State<MainPage> {
 
     Map res = await _pomeloRequest(requestFormData);
     setState(() {
-      requestResponseText = jsonEncode(res);
+      requestResponseText = '[${(new DateTime.now().toString()).substring(0, 19)}]: ${jsonEncode(res)}';
     });
     print(jsonEncode(res));
   }
 
   addListener(String name) {
     Map listener = {'name': name, 'msg': ''};
-    listenerList.add(listener);
+    setState(() {
+      listenerList.add(listener);
+    });
     pomelo.onEvent(name, (data) {
       setState(() {
         listener['msg'] =

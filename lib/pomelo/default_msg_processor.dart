@@ -1,5 +1,6 @@
 import './message.dart';
 import './utils.dart';
+import './localstorage.dart' show LocalStorage;
 
 import 'dart:convert';
 
@@ -23,7 +24,9 @@ class DefaultMsgProcessor extends MsgProcessor {
     };
 
     if (this.protoVersion.isEmpty) {
-      Map protoData = await LocalStorage.getItem('pomelo.protoData');
+      String protoDataStr =  await LocalStorage.getItem('pomelo.protoData');
+      Map protoData;
+      if (protoDataStr != null) protoData = jsonDecode(protoDataStr);
       if (protoData != null) {
         this.protoVersion = protoData['version'] ?? this.protoVersion;
         this.serverProtos = protoData['server'] ?? this.serverProtos;
@@ -33,7 +36,9 @@ class DefaultMsgProcessor extends MsgProcessor {
     handshakeBody['sys']['protoVersion'] = this.protoVersion;
 
     if (this.dictVersion.isEmpty) {
-      Map dictData = await LocalStorage.getItem('pomelo.dictData');
+      String dictDataStr =  await LocalStorage.getItem('pomelo.dictData');
+      Map dictData;
+      if (dictDataStr != null) dictData = jsonDecode(dictDataStr);
       if (dictData != null) {
         this.dictVersion = dictData['version'] ?? this.dictVersion;
         this.routeToCode = dictData['routeToCode'] ?? this.routeToCode;
@@ -55,7 +60,7 @@ class DefaultMsgProcessor extends MsgProcessor {
       this.serverProtos = protoData['server'] ?? this.serverProtos;
       this.clientProtos = protoData['client'] ?? this.clientProtos;
 
-      LocalStorage.setItem('pomelo.protoData', protoData);
+      LocalStorage.setItem('pomelo.protoData', jsonEncode(protoData));
 
       if (this.serverProtos.isNotEmpty || this.clientProtos.isNotEmpty) {
         throw 'Not yet Support protobuf';
@@ -73,7 +78,7 @@ class DefaultMsgProcessor extends MsgProcessor {
       this.routeToCode = dictData['routeToCode'] ?? this.routeToCode;
       this.codeToRoute = dictData['codeToRoute'] ?? this.codeToRoute;
 
-      LocalStorage.setItem('pomelo.dictData', dictData);
+      LocalStorage.setItem('pomelo.dictData', jsonEncode(dictData));
     }
   }
 
