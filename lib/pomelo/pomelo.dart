@@ -20,6 +20,7 @@ class Pomelo extends EventEmitter {
   WebSocketChannel wsSocket;
 
   Completer initCpl;
+  Completer disconnectCpl;
 
   // 握手数据
   Map handshakeBody = {
@@ -172,6 +173,11 @@ class Pomelo extends EventEmitter {
       this.wsSocket = null;
       this.emitEvent('SocketCloseEvent', null);
 
+      // 完成断开连接
+      if (disconnectCpl != null && (!disconnectCpl.isCompleted)) {
+        disconnectCpl.complete();
+      }
+
       // 是否为初始化失败
       if (initCpl != null && (!initCpl.isCompleted)) {
         initCpl.complete(false);
@@ -200,6 +206,7 @@ class Pomelo extends EventEmitter {
   }
 
   disconnect() async {
+    disconnectCpl = new Completer();
     if (this.wsSocket != null) {
       await this.wsSocket.sink.close();
       this.wsSocket = null;
@@ -213,6 +220,7 @@ class Pomelo extends EventEmitter {
       this.heartbeatReviceTimeoutTimer.cancel();
       this.heartbeatReviceTimeoutTimer = null;
     }
+    return disconnectCpl.future;
   }
 
   request(String route, Map body) async {
