@@ -83,7 +83,8 @@ class _MainPageState extends State<MainPage> {
 
     Map res = await _pomeloRequest(requestFormData);
     setState(() {
-      requestResponseText = '[${(new DateTime.now().toString()).substring(0, 19)}]: ${jsonEncode(res)}';
+      requestResponseText =
+          '[${(new DateTime.now().toString()).substring(0, 19)}]: ${jsonEncode(res)}';
     });
     print(jsonEncode(res));
   }
@@ -184,7 +185,7 @@ class _MainPageState extends State<MainPage> {
                   border: OutlineInputBorder(),
                 ),
                 inputFormatters: <TextInputFormatter>[
-                  WhitelistingTextInputFormatter.digitsOnly
+                  FilteringTextInputFormatter.digitsOnly
                 ],
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
               ),
@@ -333,11 +334,11 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text("取消"),
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
-                    FlatButton(
+                    TextButton(
                       child: Text("确定"),
                       onPressed: () {
                         Navigator.of(context).pop(true);
@@ -420,7 +421,7 @@ class _MainPageState extends State<MainPage> {
                     child: Text(pomelo.getDebugLog().join('\n')),
                   ),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text("确定"),
                       onPressed: () {
                         Navigator.of(context).pop(true);
@@ -465,7 +466,7 @@ class _MainPageState extends State<MainPage> {
           title: Text('提示'),
           content: Text(text),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text("确定"),
               onPressed: () {
                 Navigator.of(context).pop(true);
@@ -540,13 +541,13 @@ Widget _makeSubmitBtn(
     margin: EdgeInsets.only(top: wpx(20)),
     width: wpx100(),
     height: wpx(80),
-    child: RaisedButton(
+    child: ElevatedButton(
       onPressed: (!disabled)
           ? () {
               if (onSubmit != null) onSubmit();
             }
           : null,
-      color: Colors.blueAccent,
+      style: ElevatedButton.styleFrom(primary: Colors.blueAccent),
       child: Text(
         submitText,
         style: TextStyle(
@@ -563,11 +564,11 @@ Widget _makeDelBtn({String btnText, Function onBtn}) {
     margin: EdgeInsets.only(top: wpx(20)),
     width: wpx100(),
     height: wpx(80),
-    child: RaisedButton(
+    child: ElevatedButton(
       onPressed: () {
         if (onBtn != null) onBtn();
       },
-      color: Colors.redAccent,
+      style: ElevatedButton.styleFrom(primary: Colors.redAccent),
       child: Text(
         btnText,
         style: TextStyle(

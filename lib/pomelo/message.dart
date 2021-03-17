@@ -131,7 +131,7 @@ class Message {
     msgLen += bodyBuffer != null ? bodyBuffer.length : 0;
 
     // 构造包
-    List<int> result = List<int>(msgLen);
+    List<int> result = List<int>.filled(msgLen, 0);
     int offset = 0;
 
     offset =

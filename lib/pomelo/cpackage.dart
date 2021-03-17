@@ -17,7 +17,7 @@ class Cpackage {
     int bodyLen = this.bodyBuffer != null ? this.bodyBuffer.length : 0;
     int typeInt = this.type.index;
 
-    List<int> result = List<int>(PKG_HEAD_BYTES + bodyLen);
+    List<int> result = List<int>.filled(PKG_HEAD_BYTES + bodyLen, 0);
     int offset = 0;
     result[offset++] = typeInt & 0xff;
     result[offset++] = (bodyLen >> 16) & 0xff;
